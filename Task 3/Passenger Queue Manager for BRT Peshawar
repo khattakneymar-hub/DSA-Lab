@@ -1,0 +1,107 @@
+#include <iostream>
+using namespace std;
+
+struct Node {
+    int id;      
+    Node* next;  
+    Node(int v) {
+        id = v;
+        next = NULL;
+    }
+};
+
+class LinkedList {
+private:
+    Node* head;   
+public:
+    LinkedList() {
+        head = NULL;
+    }
+    
+    void insertAtBeginning(int v) {
+        Node* n = new Node(v);
+        n->next = head;   
+        head = n;         
+    }
+
+    void insertAtEnd(int v) {
+        Node* n = new Node(v);
+        if (head == NULL) {
+            head = n;
+            return;
+        }
+        Node* t = head;
+        while (t->next != NULL) {
+            t = t->next;
+        }
+        t->next = n;
+    }
+
+    void insertAtPosition(int v, int pos) {
+        if (pos <= 1) {
+            insertAtBeginning(v);
+            return;
+        }
+        Node* n = new Node(v);
+        Node* t = head;
+        int i = 1;
+        while (t != NULL && i < pos-1) {
+            t = t->next;
+            i++;
+        }
+        if (t == NULL) {
+            insertAtEnd(v);
+            return;
+        }
+        n->next = t->next;
+        t->next = n;
+    }
+
+    void deleteFromBeginning() {
+        if (head == NULL) {
+            cout << "Queue empty, nothing to delete!\n";
+            return;
+        }
+        Node* temp = head;
+        head = head->next;
+        delete temp;
+    }
+
+    void display() {
+        Node* t = head;
+        if (t == NULL) {
+            cout << "Queue is empty.\n";
+            return;
+        }
+        while (t != NULL) {
+            cout << t->id;
+            if (t->next != NULL) cout << " -> ";
+            t = t->next;
+        }
+        cout << endl;
+    }
+};
+
+int main() {
+    LinkedList q;
+
+    q.insertAtEnd(101);
+    q.insertAtEnd(102);
+    q.insertAtEnd(103);
+    cout << "Initial Queue:\n";
+    q.display();
+
+    q.insertAtBeginning(999);
+    cout << "After emergency passenger:\n";
+    q.display();
+
+    q.insertAtPosition(555, 2);
+    cout << "After adding special passenger:\n";
+    q.display();
+
+    q.deleteFromBeginning();
+    cout << "After first passenger boards:\n";
+    q.display();
+
+    return 0;
+}
