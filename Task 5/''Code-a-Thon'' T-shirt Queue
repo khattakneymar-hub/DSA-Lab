@@ -1,0 +1,98 @@
+#include <iostream>
+#include <list>
+#include <string>
+using namespace std;
+
+struct Student {
+    string name;
+    int id;
+};
+
+void showMenu() {
+    cout << "\n==============================\n";
+    cout << "  Code-a-Thon T-Shirt Queue\n";
+    cout << "==============================\n";
+    cout << "1. Add Student\n";
+    cout << "2. Serve Student\n";
+    cout << "3. Student Leaves\n";
+    cout << "4. Display Queue\n";
+    cout << "5. Count Students\n";
+    cout << "6. Exit\n";
+    cout << "Enter your choice: ";
+}
+
+int main() {
+    list<Student> queue;
+    int choice;
+
+    do {
+        showMenu();
+        cin >> choice;
+        cin.ignore();
+
+        switch (choice) {
+            case 1: {
+                Student s;
+                cout << "\nEnter student name: ";
+                getline(cin, s.name);
+                cout << "Enter student ID: ";
+                cin >> s.id;
+                queue.push_back(s);
+                cout << "\n" << s.name << " (ID: " << s.id << ") joined the queue.\n";
+                break;
+            }
+            case 2: {
+                if (queue.empty()) {
+                    cout << "\nThe queue is empty.\n";
+                } else {
+                    Student served = queue.front();
+                    queue.pop_front();
+                    cout << "\n" << served.name << " (ID: " << served.id << ") got their T-shirt.\n";
+                }
+                break;
+            }
+            case 3: {
+                if (queue.empty()) {
+                    cout << "\nThe queue is empty.\n";
+                    break;
+                }
+                int id;
+                cout << "\nEnter the student ID to remove: ";
+                cin >> id;
+                bool found = false;
+                for (auto it = queue.begin(); it != queue.end(); ++it) {
+                    if (it->id == id) {
+                        cout << "\n" << it->name << " (ID: " << it->id << ") left the queue.\n";
+                        queue.erase(it);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found)
+                    cout << "\nStudent with ID " << id << " not found.\n";
+                break;
+            }
+            case 4: {
+                if (queue.empty()) {
+                    cout << "\nThe queue is empty.\n";
+                } else {
+                    cout << "\nCurrent Queue (Front → Back):\n";
+                    for (auto &s : queue)
+                        cout << " - " << s.name << " (ID: " << s.id << ")\n";
+                }
+                break;
+            }
+            case 5: {
+                cout << "\nTotal students in queue: " << queue.size() << endl;
+                break;
+            }
+            case 6:
+                cout << "\nExiting...\n";
+                break;
+            default:
+                cout << "\nInvalid choice. Try again.\n";
+        }
+    } while (choice != 6);
+
+    return 0;
+}
