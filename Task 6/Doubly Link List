@@ -1,0 +1,106 @@
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
+using namespace std;
+
+struct Node {
+    string ip;
+    Node* next;
+    Node* prev;
+};
+
+class List {
+    Node* head;
+    Node* tail;
+public:
+    List() {
+        head = NULL;
+        tail = NULL;
+    }
+
+    void add(string val) {
+        Node* n = new Node;
+        n->ip = val;
+        n->next = NULL;
+        n->prev = tail;
+
+        if (head == NULL) {
+            head = n;
+            tail = n;
+        } else {
+            tail->next = n;
+            tail = n;
+        }
+    }
+
+    void forward() {
+        if (head == NULL) {
+            cout << "List is empty.\n";
+            return;
+        }
+        cout << "\nForward traversal:\n";
+        Node* p = head;
+        while (p != NULL) {
+            cout << p->ip;
+            if (p->next != NULL) cout << " -> ";
+            p = p->next;
+        }
+        cout << endl;
+    }
+
+    void backward() {
+        if (tail == NULL) {
+            cout << "List is empty.\n";
+            return;
+        }
+        cout << "\nBackward traversal:\n";
+        Node* p = tail;
+        while (p != NULL) {
+            cout << p->ip;
+            if (p->prev != NULL) cout << " -> ";
+            p = p->prev;
+        }
+        cout << endl;
+    }
+
+    void clear() {
+        Node* p = head;
+        while (p != NULL) {
+            Node* del = p;
+            p = p->next;
+            delete del;
+        }
+        head = NULL;
+        tail = NULL;
+    }
+
+    ~List() {
+        clear();
+    }
+};
+
+int main() {
+    List ips;
+    ifstream file("ips.txt");
+    if (!file.is_open()) {
+        cout << "Error opening file.\n";
+        return 0;
+    }
+
+    string line;
+    getline(file, line);
+    file.close();
+
+    stringstream ss(line);
+    string val;
+
+    while (getline(ss, val, ',')) {
+        if (val != "") ips.add(val);
+    }
+
+    ips.forward();
+    ips.backward();
+
+    return 0;
+}
