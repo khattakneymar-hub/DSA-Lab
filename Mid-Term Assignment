@@ -1,0 +1,149 @@
+#include <iostream>
+using namespace std;
+
+struct Node {
+    int patientID;
+    Node* next;
+    Node* previous;
+};
+
+Node* start = NULL;
+Node* last = NULL;
+
+void insert_at_beginning(int id) {
+    Node* newNode = new Node;
+    newNode->patientID = id;
+    newNode->previous = NULL;
+    newNode->next = start;
+
+    if (start != NULL)
+        start->previous = newNode;
+    else
+        start = newNode; 
+
+    start = newNode;
+}
+
+void insert_at_end(int id) {
+    Node* newNode = new Node;
+    newNode->patientID = id;
+    newNode->next = NULL;
+    newNode->previous = last;
+
+    if (last != NULL)
+        last->next = newNode;
+    else
+        start = newNode;
+
+    last = newNode;
+}
+
+void insert_at_position(int id, int position) {
+    if (position <= 1) {
+        insert_at_beginning(id);
+        return;
+    }
+
+    Node* newNode = new Node;
+    newNode->patientID = id;
+
+    Node* current = start;
+    int count = 1;
+
+    while (current != NULL && count < position - 1) {
+        current = current->next;
+        count++;
+    }
+
+    if (current == NULL) 
+	{ 
+        cout << "Position Exceeds add at last" << endl;
+        insert_at_end(id);
+        return;
+    }
+
+    newNode->next = current->next;
+    newNode->previous = current;
+
+    if (current->next != NULL)
+        current->next->previous = newNode;
+    else
+        last = newNode; 
+
+    current->next = newNode;
+}
+
+void delete_at_beginning() {
+    if (start == NULL) {
+        cout << "list is empty.\n";
+        return;
+    }
+
+    Node* current = start;
+    start = start->next;
+
+    if (start != NULL)
+        start->previous = NULL;
+    else
+        last = NULL;
+
+    delete current;
+}
+
+void show_forth() {
+    Node* current = start;
+    cout << "start -> ";
+    while (current != NULL) {
+        cout << current->patientID << " -> ";
+        current = current->next;
+    }
+    cout << "NULL";
+}
+
+void show_back() {
+    Node* current = last;
+    cout << "last -> ";
+    while (current != NULL) {
+        cout << current->patientID << " -> ";
+        current = current->previous;
+    }
+    cout << "NULL";
+}
+
+int main() {
+    insert_at_end(101);
+    show_forth();
+
+    insert_at_end(102);
+    show_forth();
+
+    insert_at_beginning(200);
+    show_forth();
+
+    insert_at_position(150, 2);
+    show_forth();
+
+    delete_at_beginning();
+    show_forth();
+
+    insert_at_end(300);
+    show_forth();
+
+   if (start != NULL)
+   	 cout << "\nStarting patientiD: " << start->patientID;
+   else
+     cout << "\nStarting patientiD: -1";
+
+   if (last != NULL)
+     cout << "\nlast patientiD: " << last->patientID;
+   else
+     cout << "\nlast patientiD: -1";
+
+
+    cout << "\nforward: ";
+    show_forth();
+    cout << "backward: ";
+    show_back();
+
+    return 0;
+}
