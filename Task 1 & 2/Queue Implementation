@@ -1,0 +1,164 @@
+#include <iostream>
+using namespace std;
+
+// Queue implementation using a dynamic (resizable) circular array
+class Queue {
+private:
+    // Declare a pointer variable named 'arr' to store the dynamic array of queue elements
+    int* arr;
+    
+    // Declare an integer variable named 'capacity' to store the maximum size of the array
+    int capacity;
+    
+    // Declare an integer variable named 'frontIdx' to store the index of the front element
+    int frontIdx;
+    
+    // Declare an integer variable named 'rearIdx' to store the index where next element will be inserted
+    int rearIdx;
+    
+    // Declare an integer variable named 'currentSize' to store current number of elements
+    int currentSize;
+
+    // This function is called when queue is full - creates bigger array
+    void resize() {
+        // Create new array with double the capacity
+        int newCapacity = capacity * 2;
+        int* newArr = new int[newCapacity];
+        
+        // Copy all elements from old array to new array in correct order
+        for (int i = 0; i < currentSize; i++) {
+            newArr[i] = arr[(frontIdx + i) % capacity];
+        }
+        
+        // Delete old array and update pointers/variables
+        delete[] arr;
+        arr = newArr;
+        capacity = newCapacity;
+        frontIdx = 0;
+        rearIdx = currentSize;
+    }
+
+public:
+    // Constructor - sets up initial queue
+    Queue(int initialCapacity = 4) {
+        capacity = initialCapacity;
+        arr = new int[capacity];
+        frontIdx = 0;
+        rearIdx = 0;
+        currentSize = 0;
+    }
+
+    // Destructor - frees memory when queue is destroyed
+    ~Queue() {
+        delete[] arr;
+    }
+
+    // Check if queue is empty
+    bool isEmpty() const {
+        return currentSize == 0;
+    }
+
+    // Return current number of elements in queue
+    int size() const {
+        return currentSize;
+    }
+
+    // Add element to the end of queue
+    void enqueue(int value) {
+        // If queue is full, resize it first
+        if (currentSize == capacity) {
+            resize();
+        }
+        
+        // Add new element at rear position
+        arr[rearIdx] = value;
+        
+        // Move rear index forward (wrap around if needed)
+        rearIdx = (rearIdx + 1) % capacity;
+        
+        // Increase size counter
+        currentSize++;
+    }
+
+    // Remove element from front of queue
+    void dequeue() {
+        // Check if queue is empty
+        if (isEmpty()) {
+            cout << "Queue underflow! Cannot dequeue from an empty queue.\n";
+            return;
+        }
+        
+        // Move front index forward (wrap around if needed)
+        frontIdx = (frontIdx + 1) % capacity;
+        
+        // Decrease size counter
+        currentSize--;
+    }
+
+    // Get front element without removing it
+    int front() const {
+        // Check if queue is empty
+        if (isEmpty()) {
+            cout << "Queue is empty! No front element.\n";
+            return -1;
+        }
+        
+        // Return front element
+        return arr[frontIdx];
+    }
+
+    // Display all elements in queue
+    void print() const {
+        cout << "Queue elements: ";
+        
+        // Print elements from front to rear
+        for (int i = 0; i < currentSize; i++) {
+            int index = (frontIdx + i) % capacity;
+            cout << arr[index] << " ";
+        }
+        
+        cout << "\n";
+    }
+};
+
+int main() {
+    // Create a queue
+    Queue q;
+    
+    // Add some elements
+    cout << "Enqueue 10, 20, 30, 40\n";
+    q.enqueue(10);
+    q.enqueue(20);
+    q.enqueue(30);
+    q.enqueue(40);
+    q.print();
+    
+    // Check front element
+    cout << "Front element: " << q.front() << "\n";
+    
+    // Remove two elements
+    cout << "Dequeue two elements\n";
+    q.dequeue();
+    q.dequeue();
+    q.print();
+    cout << "Front element now: " << q.front() << "\n";
+    
+    // Add more elements (this will trigger resize)
+    cout << "Enqueue 50, 60, 70 (this will cause resize internally)\n";
+    q.enqueue(50);
+    q.enqueue(60);
+    q.enqueue(70);
+    q.print();
+    
+    // Remove all elements
+    cout << "Dequeuing all elements:\n";
+    while (!q.isEmpty()) {
+        cout << "Front: " << q.front() << " -> dequeued\n";
+        q.dequeue();
+    }
+    
+    // Try to remove from empty queue (shows error handling)
+    q.dequeue();
+    
+    return 0;
+}
