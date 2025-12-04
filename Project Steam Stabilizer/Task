@@ -1,0 +1,128 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class EventNode {
+public:
+    int key;
+    string info;
+    EventNode* left;
+    EventNode* right;
+
+    EventNode(int k, const string& s) {
+        key = k;
+        info = s;
+        left = right = nullptr;
+    }
+};
+
+class History {
+private:
+    EventNode* head;
+
+    EventNode* addNode(EventNode* p, int k, const string& s) {
+        if (!p) return new EventNode(k, s);
+        if (k < p->key) 
+            p->left = addNode(p->left, k, s);
+        else if (k > p->key) 
+            p->right = addNode(p->right, k, s);
+        return p;
+    }
+
+    EventNode* findNode(EventNode* p, int k) {
+        while (p) {
+            if (p->key == k) return p;
+            if (k < p->key) p = p->left;
+            else p = p->right;
+        }
+        return nullptr;
+    }
+
+    EventNode* minNode(EventNode* p) {
+        while (p && p->left) p = p->left;
+        return p;
+    }
+
+    EventNode* removeNode(EventNode* p, int k) {
+        if (!p) return nullptr;
+
+        if (k < p->key) 
+            p->left = removeNode(p->left, k);
+        else if (k > p->key)
+            p->right = removeNode(p->right, k);
+        else {
+            if (!p->left && !p->right) {
+                delete p;
+                return nullptr;
+            }
+            if (!p->left) {
+                EventNode* t = p->right;
+                delete p;
+                return t;
+            }
+            if (!p->right) {
+                EventNode* t = p->left;
+                delete p;
+                return t;
+            }
+            EventNode* r = minNode(p->right);
+            p->key = r->key;
+            p->info = r->info;
+            p->right = removeNode(p->right, r->key);
+        }
+        return p;
+    }
+
+    void show(EventNode* p) {
+        if (!p) return;
+        show(p->left);
+        cout << p->key << " : " << p->info << endl;
+        show(p->right);
+    }
+
+public:
+    History() {
+        head = nullptr;
+    }
+
+    void insertEvent(int k, const string& t) {
+        head = addNode(head, k, t);
+    }
+
+    void deleteEvent(int k) {
+        head = removeNode(head, k);
+    }
+
+    void searchEvent(int k) {
+        EventNode* r = findNode(head, k);
+        if (!r) 
+            cout << "No event for " << k << endl;
+        else 
+            cout << r->key << " : " << r->info << endl;
+    }
+
+    void display() {
+        show(head);
+    }
+};
+
+int main() {
+    History h;
+
+    h.insertEvent(2050, "Mars Colony Established");
+    h.insertEvent(1969, "Moon Landing");
+    h.insertEvent(2100, "Warp Drive Invented");
+    h.insertEvent(2000, "Y2K Bug");
+
+    h.searchEvent(1969);
+
+    h.insertEvent(1990, "World Wide Web");
+
+    h.deleteEvent(2000);
+
+    h.display();
+
+    h.searchEvent(2000);
+
+    return 0;
+}
