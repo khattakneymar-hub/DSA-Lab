@@ -1,0 +1,67 @@
+#include <iostream>
+#include <fstream>      
+#include <ctime>        
+using namespace std;
+
+int main() 
+{
+
+    ifstream file("numbers.txt");
+    if (!file)
+	{                 
+        cerr << "Unable to open file\n";
+        return 1;
+    }
+
+    
+    int count = 0, temp;
+    while (file >> temp) count++;
+
+    file.clear();                  
+    file.seekg(0);                 
+
+    
+    int* arr = new int[count];
+
+    
+    for (int i = 0; i < count; i++) 
+	{
+        file >> arr[i];
+    }
+    
+    file.close();                  
+    clock_t start = clock();
+
+    for (int i = 0; i < count - 1; i++) 
+	{
+        for (int j = 0; j < count - 1; j++) 
+		{
+            if (arr[j] > arr[j + 1])
+		    {
+                int temp = arr[j];
+                
+                arr[j] = arr[j + 1];
+                
+                arr[j + 1] = temp;
+            }
+        }
+    }
+
+    clock_t end = clock();
+
+
+    double timeTaken = double(end - start) / CLOCKS_PER_SEC * 1000;
+
+    cout << "Sorted Numbers:\n";
+    
+    for (int i = 0; i < count; i++) 
+	{
+        cout << arr[i] << " ";
+    }
+
+    cout << "\n\nTime Taken: " << timeTaken << " milliseconds\n";
+
+    delete[] arr;
+
+    return 0;
+}
