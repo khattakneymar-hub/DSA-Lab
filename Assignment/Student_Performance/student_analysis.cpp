@@ -5,9 +5,6 @@
 
 using namespace std;
 
-/* =======================
-   STUDENT STRUCTURE
-   ======================= */
 struct Student {
     int id;
     string name;
@@ -18,17 +15,12 @@ struct Student {
     int year;
 };
 
-/* =======================
-   LINKED LIST NODE
-   ======================= */
+
 struct Node {
     Student data;
     Node* next;
 };
 
-/* =======================
-   CREATE NEW NODE
-   ======================= */
 Node* createNode(Student s) {
     Node* newNode = new Node;
     newNode->data = s;
@@ -36,9 +28,7 @@ Node* createNode(Student s) {
     return newNode;
 }
 
-/* =======================
-   INSERT AT END
-   ======================= */
+
 void insertNode(Node*& head, Student s) {
     Node* newNode = createNode(s);
 
@@ -54,9 +44,7 @@ void insertNode(Node*& head, Student s) {
     temp->next = newNode;
 }
 
-/* =======================
-   COPY LINKED LIST
-   ======================= */
+
 Node* copyList(Node* head) {
     Node* newHead = NULL;
     Node* temp = head;
@@ -68,9 +56,7 @@ Node* copyList(Node* head) {
     return newHead;
 }
 
-/* =======================
-   BUBBLE SORT BY CGPA
-   ======================= */
+
 void bubbleSortCGPA(Node* head) {
     bool swapped;
     Node* ptr;
@@ -89,9 +75,7 @@ void bubbleSortCGPA(Node* head) {
     } while (swapped);
 }
 
-/* =======================
-   INSERTION SORT BY YEAR
-   ======================= */
+
 Node* insertionSortByYear(Node* head) {
     Node* sorted = NULL;
 
@@ -115,9 +99,7 @@ Node* insertionSortByYear(Node* head) {
     return sorted;
 }
 
-/* =======================
-   OUTPUT: RANKED BY CGPA
-   ======================= */
+
 void outputRankedByCGPA(Node* head) {
     ofstream fout("ranked_by_cgpa.txt");
 
@@ -142,9 +124,7 @@ void outputRankedByCGPA(Node* head) {
     fout.close();
 }
 
-/* =======================
-   OUTPUT: SORTED BY YEAR
-   ======================= */
+
 void outputSortedByYear(Node* head) {
     ofstream fout("sorted_by_enrollment.txt");
 
@@ -189,9 +169,7 @@ void outputSortedByYear(Node* head) {
     fout.close();
 }
 
-/* =======================
-   FREE MEMORY
-   ======================= */
+
 void freeList(Node*& head) {
     while (head != NULL) {
         Node* temp = head;
@@ -200,9 +178,7 @@ void freeList(Node*& head) {
     }
 }
 
-/* =======================
-   MAIN FUNCTION
-   ======================= */
+
 int main() {
     ifstream fin("students_data.txt");
 
@@ -227,22 +203,19 @@ int main() {
 
     fin.close();
 
-    // Copy lists
     Node* listCGPA = copyList(head);
     Node* listYear = copyList(head);
 
-    // Sorting
     bubbleSortCGPA(listCGPA);
     listYear = insertionSortByYear(listYear);
 
-    // Outputs
     outputRankedByCGPA(listCGPA);
     outputSortedByYear(listYear);
 
-    // Free memory
     freeList(head);
     freeList(listCGPA);
     freeList(listYear);
 
     return 0;
 }
+
