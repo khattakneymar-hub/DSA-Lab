@@ -1,0 +1,308 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+struct Node {
+    int rating;
+    string name;
+    int hp;
+    Node* left;
+    Node* right;
+
+    Node(int r, string n, int h)
+        : rating(r), name(n), hp(h), left(nullptr), right(nullptr) {}
+};
+
+Node* root = nullptr;
+
+Node* search(Node* node, int rating) {
+    if (!node || node->rating == rating) return node;
+    if (rating < node->rating) return search(node->left, rating);
+    return search(node->right, rating);
+}
+
+Node* findMin(Node* node) {
+    while (node && node->left) node = node->left;
+    return node;
+}
+
+Node* findMax(Node* node) {
+    while (node && node->right) node = node->right;
+    return node;
+}
+
+Node* insert(Node* node, int rating, string name, int hp, bool &ok) {
+    if (!node) {
+        ok = true;
+        return new Node(rating, name, hp);
+    }
+    if (rating < node->rating)
+        node->left = insert(node->left, rating, name, hp, ok);
+    else if (rating > node->rating)
+        node->right = insert(node->right, rating, name, hp, ok);
+    else
+        ok = false;
+    return node;
+}
+
+Node* deleteNode(Node* node, int rating, bool &ok) {
+    if (!node) {
+        ok = false;
+        return nullptr;
+    }
+
+    if (rating < node->rating)
+        node->left = deleteNode(node->left, rating, ok);
+    else if (rating > node->rating)
+        node->right = deleteNode(node->right, rating, ok);
+    else {
+        ok = true;
+        if (!node->left && !node->right) {
+            delete node;
+            return nullptr;
+        }
+        if (!node->left) {
+            Node* temp = node->right;
+            delete node;
+            return temp;
+        }
+        if (!node->right) {
+            Node* temp = node->left;
+            delete node;
+            return temp;
+        }
+        Node* succ = findMin(node->right);
+        node->rating = succ->rating;
+        node->name = succ->name;
+        node->hp = succ->hp;
+        node->right = deleteNode(node->right, succ->rating, ok);
+    }
+    return node;
+}
+
+void findPrev(Node* node, int x, Node*& best) {
+    while (node) {
+        if (node->rating < x) {
+            best = node;
+            node = node->right;
+        } else node = node->left;
+    }
+}
+
+void findNext(Node* node, int x, Node*& best) {
+    while (node) {
+        if (node->rating > x) {
+            best = node;
+            node = node->left;
+        } else node = node->right;
+    }
+}
+
+void rangePrint(Node* node, int L, int R, vector<Node*>& res) {
+    if (!node) return;
+    if (node->rating > L) rangePrint(node->left, L, R, res);
+    if (node->rating >= L && node->rating <= R) res.push_back(node);
+    if (node->rating < R) rangePrint(node->right, L, R, res);
+}
+
+int countLess(Node* node, int x) {
+    if (!node) return 0;
+    if (node->rating >= x)
+        return countLess(node->left, x);
+    return 1 + countLess(node->left, x) + countLess(node->right, x);
+}
+
+void inorder(Node* node, vector<Node*>& res) {
+    if (!node) return;
+    inorder(node->left, res);
+    res.push_back(node);
+    inorder(node->right, res);
+}
+
+int height(Node* node) {
+    if (!node) return -1;
+    return 1 + max(height(node->left), height(node->right));
+}
+
+int countLeaves(Node* node) {
+    if (!node) return 0;
+    if (!node->left && !node->right) return 1;
+    return countLeaves(node->left) + countLeaves(node->right);
+}
+
+int countNodes(Node* node) {
+    if (!node) return 0;
+    return 1 + countNodes(node->left) + countNodes(node->right);
+}
+
+Node* LCA(Node* node, int a, int b) {
+    if (!node) return nullptr;
+    if (a < node->rating && b < node->rating)
+        return LCA(node->left, a, b);
+    if (a > node->rating && b > node->rating)
+        return LCA(node->right, a, b);
+    return node;
+}
+
+int distanceFrom(Node* node, int target) {
+    if (node->rating == target) return 0;
+    if (target < node->rating) return 1 + distanceFrom(node->left, target);
+    return 1 + distanceFrom(node->right, target);
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int Q;
+    cin >> Q;
+
+    while (Q--) {
+        string cmd;
+        cin >> cmd;
+
+        if (cmd == "JOIN") {
+            int r, h;
+            string n;
+            cin >> r >> n >> h;
+            bool ok = false;
+            root = insert(root, r, n, h, ok);
+            cout << (ok ? "JOINED\n" : "DUPLICATE\n");
+        }
+
+        else if (cmd == "LEAVE") {
+            int r;
+            cin >> r;
+            bool ok = false;
+            root = deleteNode(root, r, ok);
+            cout << (ok ? "LEFT\n" : "NOT_FOUND\n");
+        }
+
+        else if (cmd == "STATUS") {
+            int r;
+            cin >> r;
+            Node* p = search(root, r);
+            if (!p) cout << "NOT_FOUND\n";
+            else cout << p->rating << " " << p->name << " " << p->hp << "\n";
+        }
+
+        else if (cmd == "DAMAGE") {
+            int r, a;
+            cin >> r >> a;
+            Node* p = search(root, r);
+            if (!p) cout << "NOT_FOUND\n";
+            else {
+                p->hp = max(0, p->hp - a);
+                cout << "DAMAGED " << p->hp << "\n";
+            }
+        }
+
+        else if (cmd == "HEAL") {
+            int r, a;
+            cin >> r >> a;
+            Node* p = search(root, r);
+            if (!p) cout << "NOT_FOUND\n";
+            else {
+                p->hp += a;
+                cout << "HEALED " << p->hp << "\n";
+            }
+        }
+
+        else if (cmd == "NEXT") {
+            int x;
+            cin >> x;
+            Node* ans = nullptr;
+            findNext(root, x, ans);
+            if (!ans) cout << "NONE\n";
+            else cout << ans->rating << " " << ans->name << " " << ans->hp << "\n";
+        }
+
+        else if (cmd == "PREV") {
+            int x;
+            cin >> x;
+            Node* ans = nullptr;
+            findPrev(root, x, ans);
+            if (!ans) cout << "NONE\n";
+            else cout << ans->rating << " " << ans->name << " " << ans->hp << "\n";
+        }
+
+        else if (cmd == "MATCH") {
+            int x;
+            cin >> x;
+            if (!root) {
+                cout << "EMPTY\n";
+                continue;
+            }
+            Node *p = nullptr, *s = nullptr;
+            findPrev(root, x, p);
+            findNext(root, x, s);
+
+            if (!p && !s) cout << "EMPTY\n";
+            else if (!p) cout << s->rating << " " << s->name << " " << s->hp << "\n";
+            else if (!s) cout << p->rating << " " << p->name << " " << p->hp << "\n";
+            else {
+                int d1 = abs(x - p->rating);
+                int d2 = abs(s->rating - x);
+                if (d1 <= d2)
+                    cout << p->rating << " " << p->name << " " << p->hp << "\n";
+                else
+                    cout << s->rating << " " << s->name << " " << s->hp << "\n";
+            }
+        }
+
+        else if (cmd == "RANGE") {
+            int L, R;
+            cin >> L >> R;
+            vector<Node*> res;
+            rangePrint(root, L, R, res);
+            if (res.empty()) cout << "EMPTY\n";
+            else
+                for (auto n : res)
+                    cout << n->rating << " " << n->name << " " << n->hp << "\n";
+        }
+
+        else if (cmd == "RANK") {
+            int x;
+            cin >> x;
+            cout << countLess(root, x) << "\n";
+        }
+
+        else if (cmd == "KTH") {
+            int k;
+            cin >> k;
+            vector<Node*> res;
+            inorder(root, res);
+            if (k < 1 || k > (int)res.size())
+                cout << "OUT_OF_RANGE\n";
+            else {
+                Node* n = res[k - 1];
+                cout << n->rating << " " << n->name << " " << n->hp << "\n";
+            }
+        }
+
+        else if (cmd == "DUEL") {
+            int a, b;
+            cin >> a >> b;
+            if (!search(root, a) || !search(root, b)) {
+                cout << "NOT_FOUND\n";
+            } else {
+                Node* lca = LCA(root, a, b);
+                int d = distanceFrom(lca, a) + distanceFrom(lca, b);
+                cout << "DIST " << d << "\n";
+            }
+        }
+
+        else if (cmd == "STATS") {
+            int n = countNodes(root);
+            cout << "PLAYERS " << n << "\n";
+            if (!root) {
+                cout << "MIN NONE\nMAX NONE\nHEIGHT -1\nLEAVES 0\n";
+            } else {
+                cout << "MIN " << findMin(root)->rating << "\n";
+                cout << "MAX " << findMax(root)->rating << "\n";
+                cout << "HEIGHT " << height(root) << "\n";
+                cout << "LEAVES " << countLeaves(root) << "\n";
+            }
+        }
+    }
+    return 0;
+}
